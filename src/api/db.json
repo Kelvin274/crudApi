@@ -1,0 +1,16 @@
+{
+    "users": [
+        {
+            "id": 1,
+            "name": "Susana Dominguez",
+            "dni": 22365289,
+            "mail": "sdomin@hotmail.com"
+        },
+        {
+            "id": 2,
+            "name": "Rodrigo Gomez",
+            "dni": 28735901,
+            "mail": "rodri22g@gmail.com"
+        }
+    ]
+}
