@@ -1,16 +1,28 @@
 {
-    "users": [
-        {
-            "id": 1,
-            "name": "Susana Dominguez",
-            "dni": 22365289,
-            "mail": "sdomin@hotmail.com"
-        },
-        {
-            "id": 2,
-            "name": "Rodrigo Gomez",
-            "dni": 28735901,
-            "mail": "rodri22g@gmail.com"
-        }
-    ]
+  "users": [
+    {
+      "id": 1,
+      "name": "Susana Dominguez",
+      "dni": 22365289,
+      "mail": "sdomin@hotmail.com"
+    },
+    {
+      "id": 2,
+      "name": "Rodrigo Gomez",
+      "dni": 28735901,
+      "mail": "rodri22g@gmail.com"
+    },
+    {
+      "id": 3,
+      "name": "Sandra Muñoz",
+      "dni": "19485722",
+      "mail": "sanmun@gmail.com"
+    },
+    {
+      "id": 5,
+      "name": "Guillermo Mastandrea",
+      "dni": "40257635",
+      "mail": "guillemasta@hotmail.com"
+    }
+  ]
 }
