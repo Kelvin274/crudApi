@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { helpHttp } from "../helpers/helpHttp";
+import { apiInstance, apiService } from "../helpers/apiInstance";
 import CrudForm from "./CrudForm";
 import CrudTable from "./CrudTable";
 import Loader from "./Loader";
@@ -9,77 +9,81 @@ const Crud = () => {
    const [db, setDb] = useState(null);
    const [dataToEdit, setDataToEdit] = useState(null);
    const [error, setError] = useState(null);
-   const [loading, setLoading] = useState(false);
+   const [loading, setLoading] = useState(true);
 
-   let api = helpHttp();
-   let url = "http://localhost:5000/users";
+   const getUsers = async () => {
+      try {
+         let res = await apiService.get("/users");
+         if (res.data) {
+            setDb(res.data);
+            setError(null);
+         }
+      } catch (err) {
+         setDb(null);
+         setError(err.response);
+         throw err.response;
+      }
+   };
+
+   const findId = (arr) => {
+      let arrayIds = arr.map((el, ind) => el.id).sort((a, b) => a - b);
+      let j = 1;
+      let newId;
+
+      for (let i = 0; i < arrayIds.length; i++) {
+         if (arrayIds[i] !== j) return (newId = j);
+         j++;
+      }
+   };
 
    useEffect(() => {
       setLoading(true);
-      api.get(url).then((res) => {
-         if (!res.err) {
-            setDb(res);
-            setError(null);
-         } else {
-            setDb(null);
-            setError(res);
-         }
-      });
+      getUsers();
       setLoading(false);
    }, []);
 
    const createData = (data) => {
-      data.id = db.length + 1;
-      // Solo para Json-server, cada API necesita sus options.
-      let options = {
-         body: data,
-         headers: { "content-type": "application/json" },
-      };
-
-      api.post(url, options).then((res) => {
-         console.log(res);
-
-         if (!res.err) {
-            setDb([...db, res]);
-         } else {
-            setError(res);
-         }
-      });
+      data.id = findId(db);
+      apiInstance
+         .post("/users", data)
+         .then((res) => {
+            if (res.data) {
+               setDb([...db, res.data]);
+            } else {
+               setError(res.response);
+            }
+            console.log(res);
+         })
+         .catch((err) => {
+            console.log(err);
+         });
    };
 
    const updateData = (data) => {
-      // Solo para Json-server, cada API necesita sus options.
-      let options = {
-         body: data,
-         headers: { "content-type": "application/json" },
-      };
-      let endpoint = `${url}/${data.id}`;
-
-      api.put(endpoint, options).then((res) => {
-         if (!res.err) {
+      let endpoint = `/users/${data.id}`;
+      apiInstance.put(endpoint, data).then((res) => {
+         if (res.data) {
             let newData = db.map((el) => (el.id === data.id ? data : el));
             setDb(newData);
          } else {
-            setError(res);
+            setError(res.response);
          }
+         console.log(res);
       });
    };
 
    const deleteData = (id) => {
       let isDelete = confirm(`¿Desea eliminar el registro ${id}?`);
       if (isDelete) {
-         let endpoint = `${url}/${id}`;
-         let options = {
-            headers: { "content-type": "application/json" },
-         };
-
-         api.del(endpoint, options).then((res) => {
-            if (!res.err) {
+         let endpoint = `/users/${id}`;
+         apiInstance.delete(endpoint).then((res) => {
+            if (res.data) {
                let filterData = db.filter((el) => el.id !== id);
                setDb(filterData);
             } else {
                setError(res);
             }
+            console.log(res);
          });
       } else {
          return;
@@ -87,7 +91,7 @@ const Crud = () => {
    };
 
    return (
-      <div className="w-full h-full lg:h-screen flex flex-col lg:flex-row mt-4 sm:mt-0 space-y-4 sm:justify-evenly items-center">
+      <div className="w-full min-h-screen lg:h-screen flex flex-col lg:flex-row sm:mt-0 space-y-4 justify-evenly items-center">
          <CrudForm
             createData={createData}
             updateData={updateData}
@@ -95,19 +99,23 @@ const Crud = () => {
             setDataToEdit={setDataToEdit}
             className="w-full md:w-2/5"
          />
+
          {loading && <Loader />}
-         {error && <Message />}
-         <div className="w-4/5 lg:w-3/5 portrait:hidden md:portrait:block">
-            {db && (
+         {error ? (
+            <Message msg={error.statusText} number={error.status} />
+         ) : (
+            db && (
                <CrudTable
                   data={db}
                   setDataToEdit={setDataToEdit}
                   deleteData={deleteData}
+                  className="w-4/5 lg:w-3/5 portrait:hidden md:portrait:block"
                />
-            )}
-         </div>
+            )
+         )}
+
          <div className="md:portrait:hidden sm:landscape:hidden w-3/4 text-center border border-blue-600">
-            <h1 className="font-bold text-2xl p-4 text-blue-700 dark:text-gray-400">
+            <h1 className="font-bold text-2xl p-4 text-azul dark:text-gray-400">
                Por favor, sitúe su dispositivo en forma horizontal.
             </h1>
          </div>
